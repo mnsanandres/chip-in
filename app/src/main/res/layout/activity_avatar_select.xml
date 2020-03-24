@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".AvatarSelect" android:background="#00B0FF">
+    <GridLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/buddy_list"
+                android:rowCount="4"
+                android:columnCount="4"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="10dp">
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_01" android:tag="avatar_01"
+                     android:layout_margin="5dp"
+                     android:background="@drawable/avatar_01" android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_02" android:tag="avatar_02"
+                     android:layout_margin="5dp"
+                     android:background="@drawable/avatar_02" android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_03" android:tag="avatar_03"
+                     android:layout_margin="5dp"
+                     android:background="@drawable/avatar_03" android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_04" android:tag="avatar_04"
+                     android:layout_margin="5dp"
+                     android:background="@drawable/avatar_04" android:onClick="selectAvatar"/>
+
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_05" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_05" android:tag="avatar_05"
+                     android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_06" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_06" android:tag="avatar_06"
+                     android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_07" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_07" android:tag="avatar_07"
+                     android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_08" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_08" android:tag="avatar_08"
+                     android:onClick="selectAvatar"/>
+
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_09" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_09" android:tag="avatar_09"
+                     android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_10" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_10" android:tag="avatar_10"
+                     android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_11" android:tag="avatar_11"
+                     android:layout_margin="5dp"
+                     android:background="@drawable/avatar_11" android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_12" android:tag="avatar_12"
+                     android:layout_margin="5dp"
+                     android:background="@drawable/avatar_12" android:onClick="selectAvatar"/>
+
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_13" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_13" android:tag="avatar_13"
+                     android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_14" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_14" android:tag="avatar_14"
+                     android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_15" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_15" android:tag="avatar_15"
+                     android:onClick="selectAvatar"/>
+        <ImageButton android:layout_width="55dp" android:layout_height="55dp"
+                     android:id="@+id/avatar_16" android:layout_margin="5dp"
+                     android:background="@drawable/avatar_16" android:tag="avatar_16"
+                     android:onClick="selectAvatar"/>
+    </GridLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

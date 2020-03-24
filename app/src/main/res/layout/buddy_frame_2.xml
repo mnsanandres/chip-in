@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+    <!--<FrameLayout-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:id="@+id/avatar_frame"-->
+    <!--android:foreground="@drawable/gray_overlay">-->
+    <ImageView android:layout_width="80dp"
+               android:layout_height="80dp"
+               android:layout_margin="10dp"
+               android:id="@+id/buddy_avatar"
+               android:background="@drawable/avatar_01"
+               android:scaleType="centerCrop"
+               android:alpha="1"
+               android:layout_centerHorizontal="true"
+    />
+    <ImageView android:layout_width="40dp"
+               android:layout_height="40dp"
+               android:id="@+id/disabled_overlay"
+               android:background="@drawable/gray_overlay"
+               android:layout_alignBottom="@id/buddy_avatar"
+               android:layout_alignTop="@id/buddy_avatar"
+               android:scaleType="centerCrop"
+               android:layout_centerInParent="true"
+               android:visibility="invisible"
+    />
+    <!--</FrameLayout>-->
+    <TextView android:layout_width="100dp"
+              android:layout_height="wrap_content"
+              android:layout_below="@id/buddy_avatar"
+              android:id="@+id/buddy_name"
+              android:textColor="#000"
+              android:textSize="12sp"
+              android:text="DUMMY"
+              android:textAlignment="center"
+              android:layout_centerHorizontal="true"
+              android:fontFamily="@font/bungee"/>
+    <EditText android:layout_width="100dp" android:layout_height="wrap_content"
+              android:layout_below="@id/buddy_name"
+              android:textAlignment="center"
+              android:layout_centerHorizontal="true"
+              android:id="@+id/individual_cost"
+              android:hint="0.00"
+              android:enabled="false"
+              android:fontFamily="sans-serif-black"
+              android:inputType="number"
+              android:digits="0123456789."
+              android:textSize="12sp"/>
+</RelativeLayout>

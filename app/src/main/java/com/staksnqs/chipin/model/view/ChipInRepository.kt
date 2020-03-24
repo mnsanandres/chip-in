@@ -3,9 +3,7 @@ package com.staksnqs.chipin.model.view
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import com.staksnqs.chipin.MainActivity
-import com.staksnqs.chipin.model.entity.Activity
-import com.staksnqs.chipin.model.entity.ActivityWithBuddies
-import com.staksnqs.chipin.model.entity.Buddy
+import com.staksnqs.chipin.model.entity.*
 
 class ChipInRepository {
     private val chipInDao = MainActivity.chipInDatabase!!.ChipInDao()
@@ -37,7 +35,7 @@ class ChipInRepository {
     fun deleteActivity(activity: Activity) {
         AsyncTask.execute {
             val activityInfo = chipInDao.getActivityWithBuddiesSync(activity.id)
-            activityInfo!!.buddies.forEach { buddy ->
+            activityInfo.buddies.forEach { buddy ->
                 chipInDao.deleteBuddy(buddy)
             }
             chipInDao.deleteActivity(activity)
@@ -61,4 +59,25 @@ class ChipInRepository {
     fun getActivity(activityId: Long): LiveData<ActivityWithBuddies> {
         return chipInDao.getActivityWithBuddies(activityId)
     }
+
+    fun insertCredits(expense: Expense, credits: MutableList<Credit?>?) {
+        AsyncTask.execute {
+            val expenseId = chipInDao.insertExpense(expense)
+            credits!!.forEach { credit ->
+                if (credit != null) {
+                    credit.expenseId = expenseId
+                    chipInDao.insertCredit(credit)
+                }
+            }
+        }
+    }
+
+    fun getBuddyExpenses(activityId: Long, buddyId: Long): LiveData<BuddyExpenses> {
+        return chipInDao.getBuddyExpenses(activityId, buddyId)
+    }
+
+    fun getBuddyExpensesSum(activityId: Long, buddyId: Long): LiveData<List<ExpensePreview>> {
+        return chipInDao.getBuddyExpensesSum(activityId, buddyId)
+    }
+
 }

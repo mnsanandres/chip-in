@@ -4,7 +4,7 @@
               android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginStart="10dp">
     <TextView android:layout_width="100dp"
               android:layout_height="50dp"
-              android:id="@+id/activity_date"
+              android:id="@+id/column1"
               android:textColor="#000"
               android:textSize="16sp"
               android:layout_weight="0"
@@ -13,7 +13,7 @@
               android:fontFamily="@font/bungee" android:layout_marginStart="10dp"/>
     <TextView android:layout_width="100dp"
               android:layout_height="50dp"
-              android:id="@+id/activity_name"
+              android:id="@+id/column2"
               android:textColor="#000"
               android:textSize="16sp"
               android:textAlignment="center"

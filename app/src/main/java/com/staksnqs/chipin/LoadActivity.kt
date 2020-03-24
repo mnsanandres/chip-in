@@ -57,9 +57,9 @@ class LoadActivity : AppCompatActivity() {
                 var index = 0
                 activities!!.forEach { activity ->
                     val view = inflater.inflate(R.layout.activity_row, null)
-                    view.findViewById<TextView>(R.id.activity_date).text =
+                    view.findViewById<TextView>(R.id.column1).text =
                         SimpleDateFormat("MM/dd/yyyy", Locale.US).format(Date(activity.date))
-                    view.findViewById<TextView>(R.id.activity_name).text = activity.name
+                    view.findViewById<TextView>(R.id.column2).text = activity.name
                     view.setOnClickListener(logActivity(activity.id))
                     insertPoint.addView(view)
                     if (index++ % 2 == 0) view.setBackgroundColor(Color.parseColor("#06AF9C"))

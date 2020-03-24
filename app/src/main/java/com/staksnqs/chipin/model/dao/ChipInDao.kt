@@ -1,7 +1,6 @@
 package com.staksnqs.chipin.model.dao
 
 
-import android.webkit.PluginStub
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.staksnqs.chipin.model.entity.*
@@ -16,6 +15,9 @@ interface ChipInDao {
 
     @Insert
     fun insertCredit(credit: Credit)
+
+    @Insert
+    fun insertExpense(expense: Expense): Long
 
     @Update
     fun updateActivity(activity: Activity)
@@ -40,7 +42,17 @@ interface ChipInDao {
     @Query("SELECT * FROM activities WHERE id = :activityId")
     fun getActivityWithBuddiesSync(activityId: Long): ActivityWithBuddies
 
+//    @Transaction
+//    //@Query("SELECT * FROM buddies WHERE activityId = :activityId")
+//    @Query("SELECT * FROM credits WHERE activityId = :activityId")
+//    fun getCreditedToBuddy(activityId: Long): List<CreditToBuddy>
+
+    @Query("SELECT * FROM buddies WHERE activityId = :activityId AND id = :buddyId")
+    fun getBuddyExpenses(activityId: Long, buddyId: Long): LiveData<BuddyExpenses>
+
     @Transaction
-    @Query("SELECT * FROM buddies")
-    fun getCreditedToBuddy(): List<CreditToBuddy>
+    @Query("SELECT expenses.name, SUM(credits.amount) as total FROM credits " +
+            "INNER JOIN expenses ON expenses.id = credits.expenseId " +
+            "WHERE credits.activityId = :activityId AND toBuddyId = :buddyId GROUP BY expenseId ORDER BY expenseId")
+    fun getBuddyExpensesSum(activityId: Long, buddyId: Long): LiveData<List<ExpensePreview>>
 }

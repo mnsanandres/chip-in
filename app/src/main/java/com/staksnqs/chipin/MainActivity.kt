@@ -3,6 +3,7 @@ package com.staksnqs.chipin
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.room.Room
@@ -22,6 +23,8 @@ class MainActivity : AppCompatActivity() {
         buttonNewActivity.typeface = typeface
         buttonLoadActivity.typeface = typeface
         buttonSettings.typeface = typeface
+
+        Log.d("CHIP", getDatabasePath("chipin.db").toString())
 
         chipInDatabase = Room.databaseBuilder(
             applicationContext,

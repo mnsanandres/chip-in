@@ -66,8 +66,16 @@
                   android:fontFamily="@font/bungee"
                   android:layout_below="@id/date_field" android:layout_marginStart="10dp"
                   android:layout_marginTop="10dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="Tap on an avatar to view actions"
+                  android:textSize="12sp"
+                  android:layout_below="@id/buddy_label"
+                  android:layout_marginStart="10dp"
+                  android:layout_marginTop="5dp"
+                  android:textColor="@color/black"
+                  android:id="@+id/instruction"/>
         <LinearLayout android:layout_width="match_parent"
-                      android:layout_below="@id/buddy_label"
+                      android:layout_below="@id/instruction"
                       android:id="@+id/scrollContainer"
                       android:layout_height="wrap_content"
         >

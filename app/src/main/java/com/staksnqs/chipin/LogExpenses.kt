@@ -15,6 +15,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.staksnqs.chipin.model.entity.Activity
+import com.staksnqs.chipin.model.entity.ActivityWithBuddies
+import com.staksnqs.chipin.model.entity.Credit
+import com.staksnqs.chipin.model.entity.Expense
 import com.staksnqs.chipin.model.view.ChipInViewModel
 import org.apmem.tools.layouts.FlowLayout
 
@@ -31,6 +35,8 @@ class LogExpenses : AppCompatActivity() {
     private var saveButton: Button? = null
     private var deleteButton: Button? = null
     private var expenseName: TextView? = null
+    private var activity: Activity? = null
+    private var activityInfo: ActivityWithBuddies? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +51,7 @@ class LogExpenses : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         findViewById<TextView>(R.id.activity_title).text = "Log Expense"
-        var avatar = findViewById<ImageView>(R.id.buddy)
+        val avatar = findViewById<ImageView>(R.id.buddy)
         avatar.background = ContextCompat.getDrawable(
             this@LogExpenses, resources.getIdentifier(
                 buddyAvatar, "drawable",
@@ -71,10 +77,12 @@ class LogExpenses : AppCompatActivity() {
         val insertPoint = findViewById<FlowLayout>(R.id.buddy_list)
         chipInViewModel.getActivity(activityId).observe(
             this, Observer { activityInfo ->
+                this.activityInfo = activityInfo
                 if (activityInfo == null) {
                     finish()
                     return@Observer
                 }
+                activity = activityInfo.activity
                 activityInfo.buddies.forEach { buddy ->
                     val inflater: LayoutInflater =
                         this@LogExpenses.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -199,6 +207,25 @@ class LogExpenses : AppCompatActivity() {
             cancelLogging()
         }
 
+        saveButton!!.setOnClickListener {
+            val creditList: MutableList<Credit?>? = mutableListOf()
+            val expense = Expense(name = expenseName!!.text.toString(), activityId = activityId, buddyId = buddyId)
+            for (i in activityInfo!!.buddies.indices) {
+                if (selectedList[i]) {
+                    val buddy = activityInfo!!.buddies[i]
+                    val credit = Credit(
+                        expenseId = -1,
+                        amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i],
+                        activityId = activityId,
+                        fromBuddyId = buddy.id,
+                        toBuddyId = buddyId
+                    )
+                    creditList?.add(credit)
+                }
+            }
+            chipInViewModel.insertCredits(expense, creditList)
+            finish()
+        }
     }
 
     override fun onBackPressed() {

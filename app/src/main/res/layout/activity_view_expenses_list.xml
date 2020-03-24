@@ -4,7 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".NewActivity" android:background="#009688">
+        tools:context=".ViewExpensesList" android:background="#009688">
     <include
             android:id="@+id/tool_bar"
             layout="@layout/new_tool_bar"/>
@@ -16,7 +16,7 @@
             android:layout_height="match_parent" android:fadeScrollbars="false"
             android:scrollbarThumbHorizontal="@color/yellow" android:scrollbarThumbVertical="@color/yellow">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:id="@+id/activity_list"
+                      android:id="@+id/expenses_list"
                       android:layout_marginTop="10dp"
                       android:orientation="vertical">
         </LinearLayout>

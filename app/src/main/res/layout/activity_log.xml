@@ -20,7 +20,7 @@
                         android:gravity="center">
             <TextView android:layout_width="match_parent"
                       android:layout_height="50dp"
-                      android:id="@+id/activity_name"
+                      android:id="@+id/column2"
                       android:text="@string/activity_name"
                       android:textSize="24sp"
                       android:gravity="center"
@@ -32,10 +32,10 @@
                         android:layout_height="wrap_content"
                         android:gravity="center">
             <TextView android:layout_width="match_parent"
-                      android:layout_height="50dp"
-                      android:id="@+id/activity_date"
+                      android:layout_height="30dp"
+                      android:id="@+id/column1"
                       android:text="@string/activity_date"
-                      android:textSize="24sp"
+                      android:textSize="16sp"
                       android:gravity="center"
                       android:fontFamily="@font/bungee" android:textColor="@color/black"/>
         </RelativeLayout>
@@ -47,8 +47,16 @@
                   android:fontFamily="@font/bungee"
                   android:layout_below="@id/date_field" android:layout_marginStart="10dp"
                   android:layout_marginTop="10dp" android:textColor="@color/black"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:text="Tap on a buddy to view actions"
+                  android:textSize="12sp"
+                  android:layout_below="@id/buddy_label"
+                  android:layout_marginStart="10dp"
+                  android:layout_marginTop="5dp"
+                  android:textColor="@color/black"
+                  android:id="@+id/instruction"/>
         <LinearLayout android:layout_width="match_parent"
-                      android:layout_below="@id/buddy_label"
+                      android:layout_below="@id/instruction"
                       android:id="@+id/scrollContainer"
                       android:layout_height="wrap_content"
         >

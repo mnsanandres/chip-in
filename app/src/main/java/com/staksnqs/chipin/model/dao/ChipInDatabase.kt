@@ -7,9 +7,10 @@ import androidx.room.RoomDatabase
 import com.staksnqs.chipin.model.entity.Activity
 import com.staksnqs.chipin.model.entity.Buddy
 import com.staksnqs.chipin.model.entity.Credit
+import com.staksnqs.chipin.model.entity.Expense
 
 @Database(
-    entities = [Activity::class, Buddy::class, Credit::class],
+    entities = [Activity::class, Buddy::class, Credit::class, Expense::class],
     version = 1
 )
 abstract class ChipInDatabase : RoomDatabase() {

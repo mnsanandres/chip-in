@@ -7,7 +7,6 @@ import android.view.*
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -24,6 +23,7 @@ class LogActivity : AppCompatActivity() {
     private var activityId: Long = -1
     private var buddyId: Long = -1
     private var buddyAvatar: String = ""
+    private var buddyName: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +54,8 @@ class LogActivity : AppCompatActivity() {
                     finish()
                     return@Observer
                 }
-                findViewById<TextView>(R.id.activity_name).text = activityInfo.activity.name
-                findViewById<TextView>(R.id.activity_date).text =
+                findViewById<TextView>(R.id.column2).text = activityInfo.activity.name
+                findViewById<TextView>(R.id.column1).text =
                     SimpleDateFormat("MM/dd/yyyy", Locale.US).format(Date(activityInfo.activity.date))
                 activityInfo.buddies.forEach { buddy ->
                     val inflater: LayoutInflater =
@@ -85,6 +85,7 @@ class LogActivity : AppCompatActivity() {
                     view.setOnClickListener {
                         buddyId = buddy.id
                         buddyAvatar = buddy.avatar
+                        buddyName = buddy.name!!
                         registerForContextMenu(view)
                         openContextMenu(view)
                     }
@@ -138,6 +139,10 @@ class LogActivity : AppCompatActivity() {
     }
 
     private fun viewExpensesActivity() {
-        Toast.makeText(this, "Not yet implemented.", Toast.LENGTH_SHORT).show()
+        val intent = Intent(baseContext, ViewExpensesList::class.java)
+        intent.putExtra("ACTIVITY_ID", activityId)
+        intent.putExtra("BUDDY_ID", buddyId)
+        intent.putExtra("BUDDY_NAME", buddyName)
+        startActivity(intent)
     }
 }

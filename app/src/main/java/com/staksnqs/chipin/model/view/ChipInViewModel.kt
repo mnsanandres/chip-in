@@ -3,9 +3,7 @@ package com.staksnqs.chipin.model.view
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import com.staksnqs.chipin.model.entity.Activity
-import com.staksnqs.chipin.model.entity.ActivityWithBuddies
-import com.staksnqs.chipin.model.entity.Buddy
+import com.staksnqs.chipin.model.entity.*
 
 class ChipInViewModel(application: Application) : AndroidViewModel(application) {
     private val chipInRepository: ChipInRepository = ChipInRepository()
@@ -32,5 +30,17 @@ class ChipInViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getActivity(activityId: Long): LiveData<ActivityWithBuddies> {
         return chipInRepository.getActivity(activityId)
+    }
+
+    fun insertCredits(expense: Expense, credits: MutableList<Credit?>?) {
+        chipInRepository.insertCredits(expense, credits)
+    }
+
+    fun getBuddyExpenses(activityId: Long, buddyId: Long): LiveData<BuddyExpenses> {
+        return chipInRepository.getBuddyExpenses(activityId, buddyId)
+    }
+
+    fun getBuddyExpensesSum(activityId: Long, buddyId: Long): LiveData<List<ExpensePreview>> {
+        return chipInRepository.getBuddyExpensesSum(activityId, buddyId)
     }
 }

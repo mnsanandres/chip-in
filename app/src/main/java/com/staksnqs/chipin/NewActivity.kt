@@ -69,6 +69,9 @@ class NewActivity : AppCompatActivity() {
         toolbar.title = null
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+        if (activityId != -1L) {
+            findViewById<TextView>(R.id.activity_title).text = "Edit Activity"
+        }
 
         val cancelNew = findViewById<ImageView>(R.id.cancel_new)
         cancelNew.setOnClickListener {
@@ -352,7 +355,7 @@ class NewActivity : AppCompatActivity() {
 
     private fun cancelNewActivity() {
         val builder = AlertDialog.Builder(this@NewActivity)
-        builder.setTitle("Discard ${if (activityId == -1L) "new" else "edit"} activity?")
+        builder.setTitle("Discard ${if (activityId == -1L) "new" else "edits to"} activity?")
         builder.setMessage("All your progress will be lost. Continue?")
         builder.setPositiveButton(android.R.string.yes) { _, _ ->
             finish()

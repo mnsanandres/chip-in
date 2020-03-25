@@ -43,4 +43,12 @@ class ChipInViewModel(application: Application) : AndroidViewModel(application) 
     fun getBuddyExpensesSum(activityId: Long, buddyId: Long): LiveData<List<ExpensePreview>> {
         return chipInRepository.getBuddyExpensesSum(activityId, buddyId)
     }
+
+    fun getCreditedToBuddy(activityId: Long, buddyId: Long, expenseId: Long): LiveData<CreditToBuddy> {
+        return chipInRepository.getCreditedToBuddy(activityId, buddyId, expenseId)
+    }
+
+    fun updateCredits(expense: Expense, credits: MutableList<Credit?>?) {
+        chipInRepository.updateCredits(expense, credits)
+    }
 }

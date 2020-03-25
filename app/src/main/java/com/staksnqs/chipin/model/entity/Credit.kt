@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
 data class Credit(
     @PrimaryKey(autoGenerate = true) val id: Long,
     var expenseId: Long,
-    val amount: Float,
+    var amount: Float,
     val activityId: Long,
     val fromBuddyId: Long,
     val toBuddyId: Long

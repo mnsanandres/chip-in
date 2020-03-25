@@ -1,6 +1,7 @@
 package com.staksnqs.chipin
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -43,8 +44,10 @@ class ViewExpensesList : AppCompatActivity() {
         val inflater: LayoutInflater =
             this@ViewExpensesList.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val insertPoint = findViewById<LinearLayout>(R.id.expenses_list)
+
         chipInViewModel.getBuddyExpensesSum(activityId, buddyId).observe(
             this, Observer { expenses ->
+                insertPoint.removeAllViews()
                 if (expenses == null) {
                     return@Observer
                 }
@@ -59,11 +62,20 @@ class ViewExpensesList : AppCompatActivity() {
                     insertPoint.addView(view)
                     if (index++ % 2 == 0) view.setBackgroundColor(Color.parseColor("#06AF9C"))
 
+                    view.setOnClickListener{
+                        val intent = Intent(baseContext, ViewExpense::class.java)
+                        intent.putExtra("EXPENSE_ID", expense.id)
+                        intent.putExtra("ACTIVITY_ID", activityId)
+                        intent.putExtra("BUDDY_ID", buddyId)
+                        intent.putExtra("BUDDY_NAME", buddyName)
+                        startActivity(intent)
+                    }
+
                     view.findViewById<ImageView>(R.id.edit_activity).setOnClickListener {
-                        Toast.makeText(this, "Not yet implemeneted.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Not yet implemented.", Toast.LENGTH_SHORT).show()
                     }
                     view.findViewById<ImageView>(R.id.delete_activity).setOnClickListener {
-                        Toast.makeText(this, "Not yet implemeneted.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Not yet implemented.", Toast.LENGTH_SHORT).show()
                     }
 
                 }

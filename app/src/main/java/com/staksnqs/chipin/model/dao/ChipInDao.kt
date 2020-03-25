@@ -25,11 +25,20 @@ interface ChipInDao {
     @Update
     fun updateBuddy(buddy: Buddy)
 
+    @Update
+    fun updateExpense(expense: Expense)
+
+    @Update
+    fun updateCredit(credit: Credit)
+
     @Delete
     fun deleteActivity(activity: Activity)
 
     @Delete
     fun deleteBuddy(buddy: Buddy)
+
+    @Delete
+    fun deleteCredit(credit: Credit)
 
     @Query("SELECT * FROM activities")
     fun getActivities(): LiveData<List<Activity>>
@@ -42,16 +51,16 @@ interface ChipInDao {
     @Query("SELECT * FROM activities WHERE id = :activityId")
     fun getActivityWithBuddiesSync(activityId: Long): ActivityWithBuddies
 
-//    @Transaction
-//    //@Query("SELECT * FROM buddies WHERE activityId = :activityId")
-//    @Query("SELECT * FROM credits WHERE activityId = :activityId")
-//    fun getCreditedToBuddy(activityId: Long): List<CreditToBuddy>
+    @Transaction
+    @Query("SELECT * FROM expenses WHERE activityId = :activityId AND buddyId = :buddyId AND id = :expenseId")
+    fun getCreditedToBuddy(activityId: Long, buddyId: Long, expenseId: Long): LiveData<CreditToBuddy>
 
+    @Transaction
     @Query("SELECT * FROM buddies WHERE activityId = :activityId AND id = :buddyId")
     fun getBuddyExpenses(activityId: Long, buddyId: Long): LiveData<BuddyExpenses>
 
     @Transaction
-    @Query("SELECT expenses.name, SUM(credits.amount) as total FROM credits " +
+    @Query("SELECT expenses.id, expenses.name, SUM(credits.amount) as total FROM credits " +
             "INNER JOIN expenses ON expenses.id = credits.expenseId " +
             "WHERE credits.activityId = :activityId AND toBuddyId = :buddyId GROUP BY expenseId ORDER BY expenseId")
     fun getBuddyExpensesSum(activityId: Long, buddyId: Long): LiveData<List<ExpensePreview>>

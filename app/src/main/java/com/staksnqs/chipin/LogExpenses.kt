@@ -15,10 +15,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.staksnqs.chipin.model.entity.Activity
-import com.staksnqs.chipin.model.entity.ActivityWithBuddies
-import com.staksnqs.chipin.model.entity.Credit
-import com.staksnqs.chipin.model.entity.Expense
+import com.staksnqs.chipin.model.entity.*
 import com.staksnqs.chipin.model.view.ChipInViewModel
 import org.apmem.tools.layouts.FlowLayout
 
@@ -37,6 +34,9 @@ class LogExpenses : AppCompatActivity() {
     private var expenseName: TextView? = null
     private var activity: Activity? = null
     private var activityInfo: ActivityWithBuddies? = null
+    private var creditInfo: CreditToBuddy? = null
+
+    private var expense: Expense? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,19 +45,25 @@ class LogExpenses : AppCompatActivity() {
         val activityId = intent.getLongExtra("ACTIVITY_ID", -1)
         val buddyId = intent.getLongExtra("BUDDY_ID", -1)
         val buddyAvatar = intent.getStringExtra("BUDDY_AVATAR")
+        val expenseId = intent.getLongExtra("EXPENSE_ID", -1)
 
         val toolbar: Toolbar = findViewById(R.id.tool_bar)
         toolbar.title = null
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        findViewById<TextView>(R.id.activity_title).text = "Log Expense"
+        val title = "${if (expenseId == -1L) "Log" else "Edit"} Expense"
+        findViewById<TextView>(R.id.activity_title).text = title
         val avatar = findViewById<ImageView>(R.id.buddy)
-        avatar.background = ContextCompat.getDrawable(
-            this@LogExpenses, resources.getIdentifier(
-                buddyAvatar, "drawable",
-                packageName
+        if (expenseId == -1L) {
+            avatar.background = ContextCompat.getDrawable(
+                this@LogExpenses, resources.getIdentifier(
+                    buddyAvatar, "drawable",
+                    packageName
+                )
             )
-        )
+        }
+
+        val splitType = findViewById<RadioGroup>(R.id.split_type)
 
         totalCostField = findViewById(R.id.cost_value)
 
@@ -75,104 +81,162 @@ class LogExpenses : AppCompatActivity() {
         val chipInViewModel = ViewModelProvider(this).get(ChipInViewModel::class.java)
 
         val insertPoint = findViewById<FlowLayout>(R.id.buddy_list)
-        chipInViewModel.getActivity(activityId).observe(
-            this, Observer { activityInfo ->
-                this.activityInfo = activityInfo
-                if (activityInfo == null) {
-                    finish()
-                    return@Observer
-                }
-                activity = activityInfo.activity
-                activityInfo.buddies.forEach { buddy ->
-                    val inflater: LayoutInflater =
-                        this@LogExpenses.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                    val view = inflater.inflate(R.layout.buddy_frame_2, null)
-                    view.id = View.generateViewId()
-
-                    val nameLabel = findViewById<TextView>(R.id.who_value)
-                    if (buddy.id == buddyId) {
-                        nameLabel.text = buddy.name
+        if (expenseId == -1L) {
+            chipInViewModel.getActivity(activityId).observe(
+                this, Observer { activityInfo ->
+                    insertPoint.removeAllViews()
+                    this.activityInfo = activityInfo
+                    if (activityInfo == null) {
+                        finish()
+                        return@Observer
                     }
+                    activity = activityInfo.activity
+                    activityInfo.buddies.forEach { buddy ->
+                        val inflater: LayoutInflater =
+                            this@LogExpenses.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                        val view = inflater.inflate(R.layout.buddy_frame_2, null)
+                        view.id = View.generateViewId()
 
-                    val imageHolder = view.findViewById<ImageView>(R.id.buddy_avatar)
-                    imageHolder.background = ContextCompat.getDrawable(
+                        val nameLabel = findViewById<TextView>(R.id.who_value)
+                        if (buddy.id == buddyId) {
+                            nameLabel.text = buddy.name
+                        }
+
+                        val imageHolder = view.findViewById<ImageView>(R.id.buddy_avatar)
+                        imageHolder.background = ContextCompat.getDrawable(
+                            this@LogExpenses, resources.getIdentifier(
+                                buddy.avatar, "drawable",
+                                packageName
+                            )
+                        )
+                        val overlay = view.findViewById<ImageView>(R.id.disabled_overlay)
+                        overlay.visibility = View.VISIBLE
+                        imageHolder.alpha = 0.5f
+
+                        val textHolder = view.findViewById<TextView>(R.id.buddy_name)
+                        textHolder.text = buddy.name
+
+                        val params = GridLayout.LayoutParams()
+
+                        val factor = resources.displayMetrics.density
+                        val margin = 15
+                        params.setMargins(margin, margin, margin, margin)
+                        params.width = (110 * factor).toInt()
+                        params.height = (150 * factor).toInt()
+                        imageHolder.layoutParams.width = (60 * factor).toInt()
+                        imageHolder.layoutParams.height = imageHolder.layoutParams.width
+                        view.layoutParams = params
+                        view.setOnClickListener {
+                            buddyClickListener(overlay, imageHolder, insertPoint, view)
+                        }
+                        evenSplitList.add(0.0f)
+                        unevenSplitList.add(0.0f)
+                        selectedList.add(false)
+
+                        insertPoint.addView(view)
+
+                        val costField = view.findViewById<EditText>(R.id.individual_cost)
+                        individualCostFields.add(costField)
+                        costField.addTextChangedListener(costFieldChangeWatcher(insertPoint, view, costField))
+                    }
+                }
+            )
+            chipInViewModel.getActivities().removeObservers(this)
+        } else {
+            chipInViewModel.getCreditedToBuddy(activityId, buddyId, expenseId).observe(
+                this, Observer { expenseInfo ->
+                    insertPoint.removeAllViews()
+                    creditInfo = expenseInfo
+                    if (expenseInfo == null) {
+                        finish()
+                        return@Observer
+                    }
+                    expense = expenseInfo.expense
+                    val creditor = expenseInfo.creditor[0]
+                    avatar.background = ContextCompat.getDrawable(
                         this@LogExpenses, resources.getIdentifier(
-                            buddy.avatar, "drawable",
+                            creditor.avatar, "drawable",
                             packageName
                         )
                     )
-                    val overlay = view.findViewById<ImageView>(R.id.disabled_overlay)
-                    overlay.visibility = View.VISIBLE
-                    imageHolder.alpha = 0.5f
+                    findViewById<EditText>(R.id.name_value).setText(expense!!.name)
+                    findViewById<TextView>(R.id.who_value).text = creditor.name
+                    val creditMap = expenseInfo.credits.map { it.credit.fromBuddyId to it.credit.amount }.toMap()
+                    evenSplit =
+                        creditMap.values.count { it == expenseInfo.credits[0].credit.amount } == creditMap.values.count()
+                    if (evenSplit) splitType.check(R.id.even)
+                    else splitType.check(R.id.uneven)
+                    val totalCost = creditMap.values.sum()
+                    totalCostField!!.setText("%.2f".format(totalCost))
 
-                    val textHolder = view.findViewById<TextView>(R.id.buddy_name)
-                    textHolder.text = buddy.name
+                    expenseInfo.buddies.forEach { buddy ->
 
-                    val params = GridLayout.LayoutParams()
+                        val inflater: LayoutInflater =
+                            this@LogExpenses.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                        val view = inflater.inflate(R.layout.buddy_frame_2, null)
+                        view.id = View.generateViewId()
 
-                    val factor = resources.displayMetrics.density
-                    val margin = 15
-                    params.setMargins(margin, margin, margin, margin)
-                    params.width = (110 * factor).toInt()
-                    params.height = (150 * factor).toInt()
-                    imageHolder.layoutParams.width = (60 * factor).toInt()
-                    imageHolder.layoutParams.height = imageHolder.layoutParams.width
-                    view.layoutParams = params
-                    view.setOnClickListener {
-                        if (overlay.visibility == View.VISIBLE) {
-                            // Select buddy
-                            imageHolder.alpha = 1.0f
+                        val nameLabel = findViewById<TextView>(R.id.who_value)
+                        if (buddy.id == buddyId) {
+                            nameLabel.text = buddy.name
+                        }
+
+                        val imageHolder = view.findViewById<ImageView>(R.id.buddy_avatar)
+                        imageHolder.background = ContextCompat.getDrawable(
+                            this@LogExpenses, resources.getIdentifier(
+                                buddy.avatar, "drawable",
+                                packageName
+                            )
+                        )
+                        val overlay = view.findViewById<ImageView>(R.id.disabled_overlay)
+                        overlay.visibility = View.VISIBLE
+                        imageHolder.alpha = 0.5f
+
+                        val textHolder = view.findViewById<TextView>(R.id.buddy_name)
+                        textHolder.text = buddy.name
+
+                        val params = GridLayout.LayoutParams()
+
+                        val factor = resources.displayMetrics.density
+                        val margin = 15
+                        params.setMargins(margin, margin, margin, margin)
+                        params.width = (110 * factor).toInt()
+                        params.height = (150 * factor).toInt()
+                        imageHolder.layoutParams.width = (60 * factor).toInt()
+                        imageHolder.layoutParams.height = imageHolder.layoutParams.width
+                        view.layoutParams = params
+                        view.setOnClickListener {
+                            buddyClickListener(overlay, imageHolder, insertPoint, view)
+                        }
+
+                        val costField = view.findViewById<EditText>(R.id.individual_cost)
+                        individualCostFields.add(costField)
+                        if (creditMap.containsKey(buddy.id)) {
+                            costField.setText("%.2f".format(creditMap[buddy.id]))
                             overlay.visibility = View.INVISIBLE
-                            individualCostFields[insertPoint.indexOfChild(view)].isEnabled = !evenSplit
-                            selectedList[insertPoint.indexOfChild(view)] = true
-                            totalCostField!!.hint = "Enter cost"
-                        } else {
-                            // Deselect buddy
-                            imageHolder.alpha = 0.5f
-                            overlay.visibility = View.VISIBLE
-                            evenSplitList[insertPoint.indexOfChild(view)] = 0.0f
-                            unevenSplitList[insertPoint.indexOfChild(view)] = 0.0f
-                            individualCostFields[insertPoint.indexOfChild(view)].setText("0.0")
-                            individualCostFields[insertPoint.indexOfChild(view)].isEnabled = false
-                            selectedList[insertPoint.indexOfChild(view)] = false
-                            totalCostField!!.hint = ""
-                        }
-                        if (evenSplit) adjustEvenSplit()
-                        else adjustUnevenSplit()
-                    }
-                    evenSplitList.add(0.0f)
-                    unevenSplitList.add(0.0f)
-                    selectedList.add(false)
-
-                    insertPoint.addView(view)
-
-                    val costField = view.findViewById<EditText>(R.id.individual_cost)
-                    individualCostFields.add(costField)
-                    costField.addTextChangedListener(object : TextWatcher {
-                        override fun afterTextChanged(s: Editable?) {}
-                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                            if (!evenSplit && !switchWatcher) { // Careful not to lose this condition
-                                Log.d("CCHIP", s.toString())
-                                unevenSplitList[insertPoint.indexOfChild(view)] = if (s.toString().isEmpty()) {
-                                    0.0f
-                                } else {
-                                    try {
-                                        s.toString().toFloat()
-                                    } catch (e: NumberFormatException) {
-                                        costField!!.setText(unevenSplitList[insertPoint.indexOfChild(view)].toString())
-                                        costField.setSelection(unevenSplitList[insertPoint.indexOfChild(view)].toString().length)
-                                        unevenSplitList[insertPoint.indexOfChild(view)]
-                                    }
-                                }
-                                adjustUnevenSplit()
+                            imageHolder.alpha = 1.0f
+                            Log.d("CHIP", "${evenSplit} ${evenSplitList} ${unevenSplitList}")
+                            if (evenSplit) {
+                                evenSplitList.add(creditMap.getValue(buddy.id))
+                                unevenSplitList.add(0.0f)
+                            } else {
+                                evenSplitList.add(0.0f)
+                                unevenSplitList.add(creditMap.getValue(buddy.id))
                             }
+                            selectedList.add(true)
+                        } else {
+                            evenSplitList.add(0.0f)
+                            unevenSplitList.add(0.0f)
+                            selectedList.add(false)
                         }
-                    })
+                        insertPoint.addView(view)
+                        costField.addTextChangedListener(costFieldChangeWatcher(insertPoint, view, costField))
+                    }
                 }
-            }
-        )
-        chipInViewModel.getActivities().removeObservers(this)
+            )
+            chipInViewModel.getCreditedToBuddy(activityId, buddyId, expenseId).removeObservers(this)
+        }
+
 
         totalCostField!!.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
@@ -196,7 +260,6 @@ class LogExpenses : AppCompatActivity() {
             }
         })
 
-        val splitType = findViewById<RadioGroup>(R.id.split_type)
         splitType.setOnCheckedChangeListener { _, checkId ->
             switchSplitType(checkId)
         }
@@ -208,24 +271,114 @@ class LogExpenses : AppCompatActivity() {
         }
 
         saveButton!!.setOnClickListener {
-            val creditList: MutableList<Credit?>? = mutableListOf()
-            val expense = Expense(name = expenseName!!.text.toString(), activityId = activityId, buddyId = buddyId)
-            for (i in activityInfo!!.buddies.indices) {
-                if (selectedList[i]) {
-                    val buddy = activityInfo!!.buddies[i]
-                    val credit = Credit(
-                        expenseId = -1,
-                        amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i],
-                        activityId = activityId,
-                        fromBuddyId = buddy.id,
-                        toBuddyId = buddyId
-                    )
-                    creditList?.add(credit)
+            if (expenseId == -1L) {
+                val creditList: MutableList<Credit?>? = mutableListOf()
+                expense = Expense(name = expenseName!!.text.toString(), activityId = activityId, buddyId = buddyId)
+                for (i in activityInfo!!.buddies.indices) {
+                    if (selectedList[i]) {
+                        val buddy = activityInfo!!.buddies[i]
+                        val credit = Credit(
+                            expenseId = -1,
+                            amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i],
+                            activityId = activityId,
+                            fromBuddyId = buddy.id,
+                            toBuddyId = buddyId
+                        )
+                        creditList?.add(credit)
+                    }
                 }
+                chipInViewModel.insertCredits(expense!!, creditList)
+            } else {
+                val creditList: MutableList<Credit?>? = mutableListOf()
+                expense!!.name = expenseName!!.text.toString()
+                val currentCredits = creditInfo!!.credits.map { it.who[0].id to it.credit }.toMap()
+                for (i in creditInfo!!.buddies.indices) {
+                    val buddy = creditInfo!!.buddies[i]
+                    var credit: Credit?
+                    if (selectedList[i]) {
+                        if (buddy.id in currentCredits) {
+                            credit = currentCredits[buddy.id]
+                            credit!!.amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i]
+                        }
+                        else {
+                            credit = Credit(
+                                expenseId = -1,
+                                amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i],
+                                activityId = activityId,
+                                fromBuddyId = buddy.id,
+                                toBuddyId = buddyId
+                            )
+                        }
+                        creditList?.add(credit)
+                    }
+                    else {
+                        if (buddy.id in currentCredits) {
+                            credit = currentCredits[buddy.id]
+                            credit!!.amount = -1.0f
+                            creditList?.add(credit)
+                        }
+                    }
+                }
+                chipInViewModel.updateCredits(expense!!, creditList)
             }
-            chipInViewModel.insertCredits(expense, creditList)
             finish()
         }
+    }
+
+    private fun costFieldChangeWatcher(
+        insertPoint: FlowLayout,
+        view: View?,
+        costField: EditText
+    ): TextWatcher {
+        return object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (!evenSplit && !switchWatcher) { // Careful not to lose this condition
+                    Log.d("CCHIP", s.toString())
+                    unevenSplitList[insertPoint.indexOfChild(view)] = if (s.toString().isEmpty()) {
+                        0.0f
+                    } else {
+                        try {
+                            s.toString().toFloat()
+                        } catch (e: NumberFormatException) {
+                            costField.setText(unevenSplitList[insertPoint.indexOfChild(view)].toString())
+                            costField.setSelection(unevenSplitList[insertPoint.indexOfChild(view)].toString().length)
+                            unevenSplitList[insertPoint.indexOfChild(view)]
+                        }
+                    }
+                    adjustUnevenSplit()
+                }
+            }
+        }
+    }
+
+    private fun buddyClickListener(
+        overlay: ImageView,
+        imageHolder: ImageView,
+        insertPoint: FlowLayout,
+        view: View?
+    ) {
+        if (overlay.visibility == View.VISIBLE) {
+            // Select buddy
+            imageHolder.alpha = 1.0f
+            overlay.visibility = View.INVISIBLE
+            individualCostFields[insertPoint.indexOfChild(view)].isEnabled = !evenSplit
+            selectedList[insertPoint.indexOfChild(view)] = true
+            totalCostField!!.hint = "Enter cost"
+        } else {
+            // Deselect buddy
+            imageHolder.alpha = 0.5f
+            overlay.visibility = View.VISIBLE
+            evenSplitList[insertPoint.indexOfChild(view)] = 0.0f
+            unevenSplitList[insertPoint.indexOfChild(view)] = 0.0f
+            individualCostFields[insertPoint.indexOfChild(view)].setText("0.0")
+            individualCostFields[insertPoint.indexOfChild(view)].isEnabled = false
+            selectedList[insertPoint.indexOfChild(view)] = false
+            totalCostField!!.hint = ""
+        }
+        if (evenSplit) adjustEvenSplit()
+        else adjustUnevenSplit()
     }
 
     override fun onBackPressed() {

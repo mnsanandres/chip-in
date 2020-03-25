@@ -72,12 +72,38 @@ class ChipInRepository {
         }
     }
 
+    fun updateCredits(expense: Expense, credits: MutableList<Credit?>?) {
+        AsyncTask.execute {
+            chipInDao.updateExpense(expense)
+            credits!!.forEach { credit ->
+                if (credit != null) {
+                    if (credit.expenseId == -1L) {
+                        credit.expenseId = expense.id
+                        chipInDao.insertCredit(credit)
+                    }
+                    else {
+                        if (credit.amount == -1.0f) {
+                            chipInDao.deleteCredit(credit)
+                        }
+                        else {
+                            chipInDao.updateCredit(credit)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun getBuddyExpenses(activityId: Long, buddyId: Long): LiveData<BuddyExpenses> {
         return chipInDao.getBuddyExpenses(activityId, buddyId)
     }
 
     fun getBuddyExpensesSum(activityId: Long, buddyId: Long): LiveData<List<ExpensePreview>> {
         return chipInDao.getBuddyExpensesSum(activityId, buddyId)
+    }
+
+    fun getCreditedToBuddy(activityId: Long, buddyId: Long, expenseId: Long): LiveData<CreditToBuddy> {
+        return chipInDao.getCreditedToBuddy(activityId, buddyId, expenseId)
     }
 
 }

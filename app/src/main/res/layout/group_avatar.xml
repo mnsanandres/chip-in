@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/buddy">
+    <RelativeLayout android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/clique">
+        <ImageView android:layout_width="60dp"
+                   android:layout_height="60dp"
+                   android:layout_marginTop="0dp"
+                   android:id="@+id/clique_1"
+                   android:tag="clique_0"
+                   android:background="@drawable/avatar_01"
+                   android:alpha="1"
+                   android:visibility="visible"
+                   android:layout_centerHorizontal="true"
+        />
+        <ImageView android:layout_width="60dp"
+                   android:layout_height="60dp"
+                   android:layout_marginTop="30dp"
+                   android:layout_marginStart="0dp"
+                   android:id="@+id/clique_2"
+                   android:tag="clique_1"
+                   android:background="@drawable/avatar_01"
+                   android:visibility="invisible"
+                   android:alpha="1"
+        />
+        <ImageView android:layout_width="60dp"
+                   android:layout_height="60dp"
+                   android:layout_alignParentEnd="true"
+                   android:layout_alignParentBottom="true"
+                   android:id="@+id/clique_3"
+                   android:tag="clique_2"
+                   android:background="@drawable/avatar_01"
+                   android:visibility="invisible"
+                   android:alpha="1"
+        />
+    </RelativeLayout>
+</RelativeLayout>

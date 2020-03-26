@@ -3,8 +3,10 @@ package com.staksnqs.chipin
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -26,12 +28,27 @@ class ViewExpensesList : AppCompatActivity() {
         val activityId = intent.getLongExtra("ACTIVITY_ID", -1)
         val buddyId = intent.getLongExtra("BUDDY_ID", -1)
         val buddyName = intent.getStringExtra("BUDDY_NAME")
+        val buddyAvatar = intent.getStringExtra("BUDDY_AVATAR")
 
         val toolbar: Toolbar = findViewById(R.id.tool_bar)
         toolbar.title = null
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         findViewById<TextView>(R.id.activity_title).text = "$buddyName's Expenses"
+
+        val editButton = findViewById<ImageView>(R.id.edit_activity)
+        editButton.setBackgroundResource(android.R.drawable.ic_input_add)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            editButton.foreground = null
+        }
+        editButton.visibility = View.VISIBLE
+        editButton.setOnClickListener {
+            val intent = Intent(baseContext, LogExpenses::class.java)
+            intent.putExtra("ACTIVITY_ID", activityId)
+            intent.putExtra("BUDDY_ID", buddyId)
+            intent.putExtra("BUDDY_AVATAR", buddyAvatar)
+            startActivity(intent)
+        }
 
         val backButton = findViewById<ImageView>(R.id.cancel_new)
         backButton.setBackgroundResource(android.R.drawable.ic_menu_revert)
@@ -62,7 +79,7 @@ class ViewExpensesList : AppCompatActivity() {
                     insertPoint.addView(view)
                     if (index++ % 2 == 0) view.setBackgroundColor(Color.parseColor("#06AF9C"))
 
-                    view.setOnClickListener{
+                    view.setOnClickListener {
                         val intent = Intent(baseContext, ViewExpense::class.java)
                         intent.putExtra("EXPENSE_ID", expense.id)
                         intent.putExtra("ACTIVITY_ID", activityId)
@@ -72,7 +89,12 @@ class ViewExpensesList : AppCompatActivity() {
                     }
 
                     view.findViewById<ImageView>(R.id.edit_activity).setOnClickListener {
-                        Toast.makeText(this, "Not yet implemented.", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(baseContext, LogExpenses::class.java)
+                        intent.putExtra("EXPENSE_ID", expense.id)
+                        intent.putExtra("ACTIVITY_ID", activityId)
+                        intent.putExtra("BUDDY_ID", buddyId)
+                        intent.putExtra("BUDDY_NAME", buddyName)
+                        startActivity(intent)
                     }
                     view.findViewById<ImageView>(R.id.delete_activity).setOnClickListener {
                         Toast.makeText(this, "Not yet implemented.", Toast.LENGTH_SHORT).show()

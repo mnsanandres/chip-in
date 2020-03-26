@@ -60,8 +60,14 @@ interface ChipInDao {
     fun getBuddyExpenses(activityId: Long, buddyId: Long): LiveData<BuddyExpenses>
 
     @Transaction
-    @Query("SELECT expenses.id, expenses.name, SUM(credits.amount) as total FROM credits " +
-            "INNER JOIN expenses ON expenses.id = credits.expenseId " +
-            "WHERE credits.activityId = :activityId AND toBuddyId = :buddyId GROUP BY expenseId ORDER BY expenseId")
+    @Query(
+        "SELECT expenses.id, expenses.name, SUM(credits.amount) as total FROM credits " +
+                "INNER JOIN expenses ON expenses.id = credits.expenseId " +
+                "WHERE credits.activityId = :activityId AND toBuddyId = :buddyId GROUP BY expenseId ORDER BY expenseId"
+    )
     fun getBuddyExpensesSum(activityId: Long, buddyId: Long): LiveData<List<ExpensePreview>>
+
+    @Transaction
+    @Query("SELECT * FROM credits WHERE activityId = :activityId AND fromBuddyId = :buddyId AND toBuddyId != -1 AND toBuddyId != :buddyId")
+    fun getDues(activityId: Long, buddyId: Long): LiveData<List<Dues>>
 }

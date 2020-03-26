@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -78,6 +79,39 @@ class LogExpenses : AppCompatActivity() {
             }
         })
 
+        val nameLabel = findViewById<TextView>(R.id.who_value)
+
+        val params = GridLayout.LayoutParams()
+
+        val factor = resources.displayMetrics.density
+        val margin = 15
+        params.setMargins(margin, margin, margin, margin)
+        params.width = (110 * factor).toInt()
+        params.height = (150 * factor).toInt()
+
+        val inflater: LayoutInflater =
+            this@LogExpenses.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+        val groupAvatar = inflater.inflate(R.layout.group_avatar, null)
+        if (buddyId == -1L) {
+            val avatarParent = findViewById<RelativeLayout>(R.id.expense_info)
+            val index = avatarParent.indexOfChild(avatar)
+            avatarParent.removeView(avatar)
+            avatarParent.addView(groupAvatar, index)
+
+            val rParams = RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT
+            )
+            rParams.setMargins(margin, margin, margin, margin)
+            rParams.width = (90 * factor).toInt()
+            rParams.height = (100 * factor).toInt()
+
+            val groupImageHolder = groupAvatar.findViewById<RelativeLayout>(R.id.clique)
+            groupImageHolder.layoutParams = rParams
+            nameLabel.text = "Group"
+        }
+
         val chipInViewModel = ViewModelProvider(this).get(ChipInViewModel::class.java)
 
         val insertPoint = findViewById<FlowLayout>(R.id.buddy_list)
@@ -91,13 +125,25 @@ class LogExpenses : AppCompatActivity() {
                         return@Observer
                     }
                     activity = activityInfo.activity
+                    var index = 0
                     activityInfo.buddies.forEach { buddy ->
-                        val inflater: LayoutInflater =
-                            this@LogExpenses.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                        if (index < 3) {
+                            val miniAvatar = groupAvatar.findViewWithTag<ImageView>("clique_$index")
+                            miniAvatar.layoutParams.width = (60 * factor).toInt()
+                            miniAvatar.layoutParams.height = miniAvatar.layoutParams.width
+                            miniAvatar.setBackgroundResource(
+                                resources.getIdentifier(
+                                    buddy.avatar, "drawable",
+                                    packageName
+                                )
+                            )
+                            miniAvatar.visibility = View.VISIBLE
+                            index++
+                        }
+
                         val view = inflater.inflate(R.layout.buddy_frame_2, null)
                         view.id = View.generateViewId()
 
-                        val nameLabel = findViewById<TextView>(R.id.who_value)
                         if (buddy.id == buddyId) {
                             nameLabel.text = buddy.name
                         }
@@ -116,13 +162,7 @@ class LogExpenses : AppCompatActivity() {
                         val textHolder = view.findViewById<TextView>(R.id.buddy_name)
                         textHolder.text = buddy.name
 
-                        val params = GridLayout.LayoutParams()
 
-                        val factor = resources.displayMetrics.density
-                        val margin = 15
-                        params.setMargins(margin, margin, margin, margin)
-                        params.width = (110 * factor).toInt()
-                        params.height = (150 * factor).toInt()
                         imageHolder.layoutParams.width = (60 * factor).toInt()
                         imageHolder.layoutParams.height = imageHolder.layoutParams.width
                         view.layoutParams = params
@@ -152,15 +192,19 @@ class LogExpenses : AppCompatActivity() {
                         return@Observer
                     }
                     expense = expenseInfo.expense
-                    val creditor = expenseInfo.creditor[0]
-                    avatar.background = ContextCompat.getDrawable(
-                        this@LogExpenses, resources.getIdentifier(
-                            creditor.avatar, "drawable",
-                            packageName
+                    var creditorName = "Group"
+                    if (buddyId != -1L) {
+                        val creditor = expenseInfo.creditor[0]
+                        creditorName = creditor.name!!
+                        avatar.background = ContextCompat.getDrawable(
+                            this@LogExpenses, resources.getIdentifier(
+                                creditor.avatar, "drawable",
+                                packageName
+                            )
                         )
-                    )
+                    }
                     findViewById<EditText>(R.id.name_value).setText(expense!!.name)
-                    findViewById<TextView>(R.id.who_value).text = creditor.name
+                    findViewById<TextView>(R.id.who_value).text = creditorName
                     val creditMap = expenseInfo.credits.map { it.credit.fromBuddyId to it.credit.amount }.toMap()
                     evenSplit =
                         creditMap.values.count { it == expenseInfo.credits[0].credit.amount } == creditMap.values.count()
@@ -169,14 +213,25 @@ class LogExpenses : AppCompatActivity() {
                     val totalCost = creditMap.values.sum()
                     totalCostField!!.setText("%.2f".format(totalCost))
 
+                    var index = 0
                     expenseInfo.buddies.forEach { buddy ->
-
-                        val inflater: LayoutInflater =
-                            this@LogExpenses.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
                         val view = inflater.inflate(R.layout.buddy_frame_2, null)
                         view.id = View.generateViewId()
 
-                        val nameLabel = findViewById<TextView>(R.id.who_value)
+                        if (index < 3) {
+                            val miniAvatar = groupAvatar.findViewWithTag<ImageView>("clique_$index")
+                            miniAvatar.layoutParams.width = (60 * factor).toInt()
+                            miniAvatar.layoutParams.height = miniAvatar.layoutParams.width
+                            miniAvatar.setBackgroundResource(
+                                resources.getIdentifier(
+                                    buddy.avatar, "drawable",
+                                    packageName
+                                )
+                            )
+                            miniAvatar.visibility = View.VISIBLE
+                            index++
+                        }
+
                         if (buddy.id == buddyId) {
                             nameLabel.text = buddy.name
                         }
@@ -195,13 +250,6 @@ class LogExpenses : AppCompatActivity() {
                         val textHolder = view.findViewById<TextView>(R.id.buddy_name)
                         textHolder.text = buddy.name
 
-                        val params = GridLayout.LayoutParams()
-
-                        val factor = resources.displayMetrics.density
-                        val margin = 15
-                        params.setMargins(margin, margin, margin, margin)
-                        params.width = (110 * factor).toInt()
-                        params.height = (150 * factor).toInt()
                         imageHolder.layoutParams.width = (60 * factor).toInt()
                         imageHolder.layoutParams.height = imageHolder.layoutParams.width
                         view.layoutParams = params
@@ -222,6 +270,7 @@ class LogExpenses : AppCompatActivity() {
                             } else {
                                 evenSplitList.add(0.0f)
                                 unevenSplitList.add(creditMap.getValue(buddy.id))
+                                costField.isEnabled = true
                             }
                             selectedList.add(true)
                         } else {
@@ -299,8 +348,7 @@ class LogExpenses : AppCompatActivity() {
                         if (buddy.id in currentCredits) {
                             credit = currentCredits[buddy.id]
                             credit!!.amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i]
-                        }
-                        else {
+                        } else {
                             credit = Credit(
                                 expenseId = -1,
                                 amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i],
@@ -310,8 +358,7 @@ class LogExpenses : AppCompatActivity() {
                             )
                         }
                         creditList?.add(credit)
-                    }
-                    else {
+                    } else {
                         if (buddy.id in currentCredits) {
                             credit = currentCredits[buddy.id]
                             credit!!.amount = -1.0f

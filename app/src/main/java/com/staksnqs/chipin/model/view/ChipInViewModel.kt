@@ -51,4 +51,8 @@ class ChipInViewModel(application: Application) : AndroidViewModel(application) 
     fun updateCredits(expense: Expense, credits: MutableList<Credit?>?) {
         chipInRepository.updateCredits(expense, credits)
     }
+
+    fun getDues(activityId: Long, buddyId: Long): LiveData<List<Dues>> {
+        return chipInRepository.getDues(activityId, buddyId)
+    }
 }

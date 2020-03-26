@@ -188,10 +188,11 @@ class LogActivity : AppCompatActivity() {
     }
 
     private fun viewDuesActivity() {
-        val intent = Intent(baseContext, DuesList::class.java)
+        val intent = Intent(baseContext, DuesPreview::class.java)
         intent.putExtra("ACTIVITY_ID", activityId)
         intent.putExtra("BUDDY_ID", buddyId)
         intent.putExtra("BUDDY_NAME", buddyName)
+        intent.putExtra("BUDDY_AVATAR", buddyAvatar)
         startActivity(intent)
     }
 }

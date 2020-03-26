@@ -26,12 +26,14 @@ class DuesList : AppCompatActivity() {
         val activityId = intent.getLongExtra("ACTIVITY_ID", -1)
         val buddyId = intent.getLongExtra("BUDDY_ID", -1)
         val buddyName = intent.getStringExtra("BUDDY_NAME")
+        val creditor = intent.getStringExtra("CREDITOR")
+        val creditorId = intent.getLongExtra("CREDITOR_ID", -1)
 
         val toolbar: Toolbar = findViewById(R.id.tool_bar)
         toolbar.title = null
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        findViewById<TextView>(R.id.activity_title).text = "$buddyName's Dues"
+        findViewById<TextView>(R.id.activity_title).text = "$buddyName's Dues to $creditor"
 
         val backButton = findViewById<ImageView>(R.id.cancel_new)
         backButton.setBackgroundResource(android.R.drawable.ic_menu_revert)
@@ -44,14 +46,14 @@ class DuesList : AppCompatActivity() {
             this@DuesList.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val insertPoint = findViewById<LinearLayout>(R.id.dues_list)
 
-        chipInViewModel.getDues(activityId, buddyId).observe(
+        chipInViewModel.getDues(activityId, buddyId, creditorId).observe(
             this, Observer { duesInfo ->
+                insertPoint.removeAllViews()
                 var index = 0
                 duesInfo.forEach{ due ->
                     val view = inflater.inflate(R.layout.dues_row, null)
                     view.findViewById<TextView>(R.id.column1).text = due.expense[0].name
                     view.findViewById<TextView>(R.id.column2).text = "%.2f".format(due.credit.amount)
-                    view.findViewById<TextView>(R.id.column3).text = due.buddies[0].name
                     insertPoint.addView(view)
                     if (index++ % 2 == 0) view.setBackgroundColor(Color.parseColor("#06AF9C"))
 
@@ -64,6 +66,12 @@ class DuesList : AppCompatActivity() {
                         startActivity(intent)
                     }
                 }
+            }
+        )
+
+        chipInViewModel.getBuddyDueSum(activityId, buddyId).observe(
+            this, Observer { duesPreview ->
+                Log.d("CHIP", duesPreview.toString())
             }
         )
     }

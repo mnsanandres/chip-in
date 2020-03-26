@@ -52,7 +52,11 @@ class ChipInViewModel(application: Application) : AndroidViewModel(application) 
         chipInRepository.updateCredits(expense, credits)
     }
 
-    fun getDues(activityId: Long, buddyId: Long): LiveData<List<Dues>> {
-        return chipInRepository.getDues(activityId, buddyId)
+    fun getDues(activityId: Long, buddyId: Long, creditorId: Long): LiveData<List<Dues>> {
+        return chipInRepository.getDues(activityId, buddyId, creditorId)
+    }
+
+    fun getBuddyDueSum(activityId: Long, buddyId: Long): LiveData<List<DuesPreview>> {
+        return chipInRepository.getBuddyDueSum(activityId, buddyId)
     }
 }

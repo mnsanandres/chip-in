@@ -63,11 +63,23 @@ interface ChipInDao {
     @Query(
         "SELECT expenses.id, expenses.name, SUM(credits.amount) as total FROM credits " +
                 "INNER JOIN expenses ON expenses.id = credits.expenseId " +
-                "WHERE credits.activityId = :activityId AND toBuddyId = :buddyId GROUP BY expenseId ORDER BY expenseId"
+                "WHERE credits.activityId = :activityId AND toBuddyId = :buddyId " +
+                "GROUP BY expenseId " +
+                "ORDER BY expenseId"
     )
     fun getBuddyExpensesSum(activityId: Long, buddyId: Long): LiveData<List<ExpensePreview>>
 
     @Transaction
-    @Query("SELECT * FROM credits WHERE activityId = :activityId AND fromBuddyId = :buddyId AND toBuddyId != -1 AND toBuddyId != :buddyId")
-    fun getDues(activityId: Long, buddyId: Long): LiveData<List<Dues>>
+    @Query("SELECT * FROM credits WHERE activityId = :activityId AND fromBuddyId = :buddyId AND toBuddyId = :creditorId AND toBuddyId != :buddyId")
+    fun getDues(activityId: Long, buddyId: Long, creditorId: Long): LiveData<List<Dues>>
+
+    @Transaction
+    @Query(
+        "SELECT buddies.id, buddies.name, buddies.avatar, sum(credits.amount) as total FROM credits " +
+                "INNER JOIN buddies on credits.toBuddyId = buddies.id " +
+                "WHERE credits.activityId = :activityId AND credits.fromBuddyId = :buddyId AND credits.toBuddyId != :buddyId " +
+                "GROUP BY credits.toBuddyId " +
+                "ORDER BY buddies.id"
+    )
+    fun getBuddyDueSum(activityId: Long, buddyId: Long): LiveData<List<DuesPreview>>
 }

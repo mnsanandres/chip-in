@@ -106,8 +106,12 @@ class ChipInRepository {
         return chipInDao.getCreditedToBuddy(activityId, buddyId, expenseId)
     }
 
-    fun getDues(activityId: Long, buddyId: Long): LiveData<List<Dues>> {
-        return chipInDao.getDues(activityId, buddyId)
+    fun getDues(activityId: Long, buddyId: Long, creditorId: Long): LiveData<List<Dues>> {
+        return chipInDao.getDues(activityId, buddyId, creditorId)
+    }
+
+    fun getBuddyDueSum(activityId: Long, buddyId: Long): LiveData<List<DuesPreview>> {
+        return chipInDao.getBuddyDueSum(activityId, buddyId)
     }
 
 }

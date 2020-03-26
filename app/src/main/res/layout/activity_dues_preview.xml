@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".LogExpenses">
+    <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".LogActivity" android:background="#009688">
+        <include
+                android:id="@+id/tool_bar"
+                layout="@layout/new_tool_bar"/>
+        <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:id="@+id/expense_info"
+                        android:layout_below="@id/tool_bar">
+            <ImageView android:layout_width="100dp" android:layout_height="100dp"
+                       android:id="@+id/buddy"
+                       android:layout_marginStart="10dp"
+                       android:background="@drawable/buddy_frame"/>
+            <RelativeLayout android:id="@+id/field_container" android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" android:layout_marginTop="10dp"
+                            android:layout_toEndOf="@id/buddy"
+                            android:gravity="center">
+                <RelativeLayout android:id="@+id/name_field"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center">
+                    <TextView android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:id="@+id/name_label"
+                              android:text="Dues For"
+                              android:textSize="16sp"
+                              android:gravity="center"
+                              android:textColor="@color/black"
+                              android:fontFamily="@font/bungee"/>
+                    <TextView android:layout_width="match_parent"
+                              android:layout_height="50dp"
+                              android:id="@+id/name_value"
+                              android:singleLine="true"
+                              android:textSize="20sp"
+                              android:gravity="center_vertical"
+                              android:layout_below="@id/name_label"
+                              android:fontFamily="@font/bungee" android:hint="@string/enter_expense"
+                              android:backgroundTint="#FFC400"/>
+                </RelativeLayout>
+            </RelativeLayout>
+        </RelativeLayout>
+        <RelativeLayout android:id="@+id/cost_field"
+                        android:layout_below="@id/expense_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center">
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="50dp"
+                      android:id="@+id/cost_label"
+                      android:text="Total Due"
+                      android:textSize="18sp"
+                      android:gravity="center"
+                      android:textColor="@color/black"
+                      android:fontFamily="@font/bungee"/>
+            <TextView android:layout_width="150dp"
+                      android:layout_height="50dp"
+                      android:id="@+id/cost_value"
+                      android:singleLine="true"
+                      android:textSize="18sp"
+                      android:layout_marginStart="5dp"
+                      android:enabled="true"
+                      android:gravity="center"
+                      android:layout_toEndOf="@id/cost_label"
+                      android:fontFamily="@font/bungee" android:hint="@string/enter_cost"
+                      android:backgroundTint="#FFC400"/>
+        </RelativeLayout>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_below="@id/cost_field"
+                      android:id="@+id/scrollContainer"
+                      android:layout_height="wrap_content"
+        >
+            <ScrollView
+                    android:layout_width="match_parent"
+                    android:id="@+id/scrollView"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="match_parent" android:fadeScrollbars="false"
+                    android:scrollbarThumbHorizontal="@color/yellow" android:scrollbarThumbVertical="@color/yellow">
+                <org.apmem.tools.layouts.FlowLayout android:layout_width="match_parent"
+                                                    android:layout_height="wrap_content"
+                                                    android:id="@+id/buddy_list"
+                                                    android:layout_marginTop="10dp"
+                                                    android:layout_marginStart="10dp"
+                                                    android:layout_marginEnd="10dp"
+                                                    android:layout_marginBottom="10dp">
+                </org.apmem.tools.layouts.FlowLayout>
+            </ScrollView>
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

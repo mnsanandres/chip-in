@@ -93,9 +93,9 @@ class NewActivity : AppCompatActivity() {
         saveActivity!!.setOnClickListener(saveActivity())
 
         name_label.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
-        name_value.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
+        //name_value.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
         date_label.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
-        date_picker.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
+        //date_picker.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
         buddy_label.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
         date_picker.inputType = InputType.TYPE_NULL
         date_picker.setOnClickListener {
@@ -250,7 +250,7 @@ class NewActivity : AppCompatActivity() {
                 avatarBackground = currentAvatar
             }
             buddyNameLabel.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
-            buddyNameValue.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
+//            buddyNameValue.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
             saveBuddy.typeface = Typeface.createFromAsset(assets, "fonts/bungee.ttf")
 
             buddyImage.setOnClickListener {

@@ -1,19 +1,25 @@
 package com.staksnqs.chipin
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebView
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.staksnqs.chipin.model.view.ChipInViewModel
+import java.io.File
 
 class ViewExpense : AppCompatActivity() {
 
@@ -35,6 +41,10 @@ class ViewExpense : AppCompatActivity() {
 
         val backButton = findViewById<ImageView>(R.id.cancel_new)
         backButton.setBackgroundResource(android.R.drawable.ic_menu_revert)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            backButton.foreground = ContextCompat.getDrawable(this@ViewExpense, android.R.drawable.ic_menu_revert)
+            backButton.foregroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.yellow))
+        }
         backButton.setOnClickListener {
             finish()
         }
@@ -77,15 +87,41 @@ class ViewExpense : AppCompatActivity() {
             groupImageHolder.layoutParams = rParams
         }
 
+        val viewReceipt = findViewById<ImageButton>(R.id.view_receipt)
+        viewReceipt.setOnClickListener {
+            val fileName = "${getExternalFilesDir(null)}/uploads/receipts/$expenseId.jpg"
+            val imageUri =
+                FileProvider.getUriForFile(this, applicationContext.packageName + ".provider", File(fileName))
+            if (File(fileName).exists()) {
+                val dialog = Dialog(this, R.style.Theme_AppCompat_Light_NoActionBar)
+                dialog.setCancelable(true)
+                val viewer = WebView(this)
+                viewer.layoutParams = ViewGroup.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT
+                )
+                viewer.loadUrl(imageUri.toString())
+                viewer.settings.builtInZoomControls = true
+                viewer.settings.supportZoom()
+                viewer.settings.useWideViewPort = true
+                viewer.setInitialScale(1)
+                dialog.setContentView(viewer)
+                dialog.show()
+            } else {
+                Toast.makeText(this, "No receipts uploaded.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         chipInViewModel = ViewModelProvider(this).get(ChipInViewModel::class.java)
         var totalCost = 0.0f
 
         val insertPoint = findViewById<ViewGroup>(R.id.buddy_list)
         chipInViewModel.getCreditedToBuddy(activityId, buddyId, expenseId).observe(
             this, Observer { expenseInfo ->
+                if (expenseInfo == null) finish()
                 insertPoint.removeAllViews()
                 val expense = expenseInfo.expense
-                var ownerAvatar = "group"
+                val ownerAvatar: String
                 var ownerName = "Group"
                 if (buddyId != -1L) {
                     val owner = expenseInfo.creditor[0]

@@ -1,9 +1,17 @@
 package com.staksnqs.chipin
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -14,11 +22,13 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.staksnqs.chipin.model.entity.*
 import com.staksnqs.chipin.model.view.ChipInViewModel
 import org.apmem.tools.layouts.FlowLayout
+import java.io.File
 
 class LogExpenses : AppCompatActivity() {
 
@@ -38,6 +48,7 @@ class LogExpenses : AppCompatActivity() {
     private var creditInfo: CreditToBuddy? = null
 
     private var expense: Expense? = null
+    private var image_uri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +100,11 @@ class LogExpenses : AppCompatActivity() {
         params.width = (110 * factor).toInt()
         params.height = (150 * factor).toInt()
 
+        if (buddyId != -1L) {
+            findViewById<RelativeLayout>(R.id.hint).visibility = View.GONE
+            findViewById<CheckBox>(R.id.group_split).visibility = View.GONE
+        }
+
         val inflater: LayoutInflater =
             this@LogExpenses.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -110,6 +126,31 @@ class LogExpenses : AppCompatActivity() {
             val groupImageHolder = groupAvatar.findViewById<RelativeLayout>(R.id.clique)
             groupImageHolder.layoutParams = rParams
             nameLabel.text = "Group"
+        }
+
+        val cameraButton = findViewById<ImageButton>(R.id.upload_receipt)
+        cameraButton.setOnClickListener {
+//            val intent = Intent(this, UploadPhotoActivity::class.java)
+//            startActivity(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                if (checkSelfPermission(Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_DENIED ||
+                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_DENIED){
+                    //permission was not enabled
+                    val permission = arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    //show popup to request permission
+                    requestPermissions(permission, 1000)
+                }
+                else{
+                    //permission already granted
+                    openCamera()
+                }
+            }
+            else{
+                //system os is < marshmallow
+                openCamera()
+            }
         }
 
         val chipInViewModel = ViewModelProvider(this).get(ChipInViewModel::class.java)
@@ -320,55 +361,164 @@ class LogExpenses : AppCompatActivity() {
         }
 
         saveButton!!.setOnClickListener {
+            val splitCheck = findViewById<CheckBox>(R.id.group_split)
+            val splitLater = splitCheck.isEnabled && splitCheck.isChecked
+            Log.d("CHIP", "$splitLater $buddyId")
+
+            val debtDict = mutableMapOf<Int, MutableMap<Int, Float>>()//.withDefault { mutableMapOf() }
+            if (buddyId == -1L && splitLater) {
+                val total = unevenSplitList.sum()
+                val share = total / selectedList.count { it }
+                val debt = mutableListOf<MutableList<Float>>()
+
+                var index = 0f
+                unevenSplitList.forEach { amount ->
+                    if (selectedList[index.toInt()]) debt.add(mutableListOf(index, share - amount))
+                    else debt.add(mutableListOf(index, 0f))
+                    index++
+                }
+
+                Log.d("CHIP", "debts b: $debt")
+                fun selector(d: MutableList<Float>): Float = d[1]
+                debt.sortBy { selector(it) }
+                Log.d("CHIP", "debts a: $debt")
+
+                // Say i is Alice, j is Bob
+                for (i in 0 until unevenSplitList.size) {
+                    val iKey = debt[i][0].toInt()
+                    // Alice's group balance is > 0
+                    if (selectedList[iKey] && debt[i][1] > 0) {
+                        // Check for other members that paid more than the share
+                        for (j in 0 until unevenSplitList.size) {
+                            val jKey = debt[j][0].toInt()
+                            // Do while Alice has balance; find Bob
+                            if (selectedList[jKey] && debt[j][1] < 0 && debt[i][1] != 0f) {
+                                if (iKey !in debtDict) {
+                                    debtDict[iKey] = mutableMapOf()
+                                }
+                                if (jKey !in debtDict[iKey]!!) {
+                                    debtDict[iKey]!![jKey] = 0f
+                                }
+                                // If Alice's balance is less than or equal Bob's due
+                                if (debt[i][1] + debt[j][1] <= 0) {
+                                    debt[j][1] += debt[i][1]
+                                    debtDict[iKey]!![jKey] = debt[i][1]
+                                    debt[i][1] = 0f
+                                }
+                                // Subtract Bob's due from her balance; Bob is in Alice's credit list
+                                else {
+                                    debt[i][1] += debt[j][1]
+                                    debtDict[iKey]!![jKey] = -debt[j][1]
+                                    debt[j][1] = 0f
+                                }
+                            }
+                        }
+                    }
+                }
+                Log.d("CHIP", "debts f: $debt")
+                Log.d("CHIP", debtDict.toString())
+            }
+//            finish()
+//            return@setOnClickListener
+
             if (expenseId == -1L) {
                 val creditList: MutableList<Credit?>? = mutableListOf()
+                val groupCredit: MutableList<GroupCredit?>? = mutableListOf()
                 expense = Expense(name = expenseName!!.text.toString(), activityId = activityId, buddyId = buddyId)
                 for (i in activityInfo!!.buddies.indices) {
                     if (selectedList[i]) {
                         val buddy = activityInfo!!.buddies[i]
-                        val credit = Credit(
-                            expenseId = -1,
-                            amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i],
-                            activityId = activityId,
-                            fromBuddyId = buddy.id,
-                            toBuddyId = buddyId
-                        )
-                        creditList?.add(credit)
-                    }
-                }
-                chipInViewModel.insertCredits(expense!!, creditList)
-            } else {
-                val creditList: MutableList<Credit?>? = mutableListOf()
-                expense!!.name = expenseName!!.text.toString()
-                val currentCredits = creditInfo!!.credits.map { it.who[0].id to it.credit }.toMap()
-                for (i in creditInfo!!.buddies.indices) {
-                    val buddy = creditInfo!!.buddies[i]
-                    var credit: Credit?
-                    if (selectedList[i]) {
-                        if (buddy.id in currentCredits) {
-                            credit = currentCredits[buddy.id]
-                            credit!!.amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i]
-                        } else {
-                            credit = Credit(
+                        // Insert group credit cache
+                        if (splitLater && debtDict.containsKey(i)) {
+                            debtDict[i]!!.forEach { (k, v) ->
+                                val gCredit = GroupCredit(
+                                    expenseId = -1,
+                                    amount = v,
+                                    activityId = activityId,
+                                    fromBuddyId = activityInfo!!.buddies[i].id,
+                                    toBuddyId = activityInfo!!.buddies[k].id
+                                )
+                                groupCredit?.add(gCredit)
+                            }
+                        }
+                        else {
+                            val credit = Credit(
                                 expenseId = -1,
                                 amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i],
                                 activityId = activityId,
                                 fromBuddyId = buddy.id,
                                 toBuddyId = buddyId
                             )
-                        }
-                        creditList?.add(credit)
-                    } else {
-                        if (buddy.id in currentCredits) {
-                            credit = currentCredits[buddy.id]
-                            credit!!.amount = -1.0f
                             creditList?.add(credit)
                         }
                     }
                 }
-                chipInViewModel.updateCredits(expense!!, creditList)
+                val imagePath = "${getExternalFilesDir(null)}/uploads/receipts/-1.jpg"
+                chipInViewModel.insertCredits(expense!!, creditList, groupCredit, imagePath)
+            } else {
+                val creditList: MutableList<Credit?>? = mutableListOf()
+                val groupCredit: MutableList<GroupCredit?>? = mutableListOf()
+                expense!!.name = expenseName!!.text.toString()
+                val currentCredits = creditInfo!!.credits.map { it.who[0].id to it.credit }.toMap()
+                for (i in creditInfo!!.buddies.indices) {
+                    val buddy = creditInfo!!.buddies[i]
+                    var credit: Credit?
+
+                    if (splitLater && debtDict.containsKey(i)) {
+                        debtDict[i]!!.forEach { (k, v) ->
+                            val gCredit = GroupCredit(
+                                expenseId = expense!!.id,
+                                amount = v,
+                                activityId = activityId,
+                                fromBuddyId = creditInfo!!.buddies[i].id,
+                                toBuddyId = creditInfo!!.buddies[k].id
+                            )
+                            groupCredit?.add(gCredit)
+                        }
+                    } else {
+                        if (selectedList[i]) {
+                            if (buddy.id in currentCredits) {
+                                credit = currentCredits[buddy.id]
+                                credit!!.amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i]
+                            } else {
+                                credit = Credit(
+                                    expenseId = -1,
+                                    amount = if (evenSplit) evenSplitList[i] else unevenSplitList[i],
+                                    activityId = activityId,
+                                    fromBuddyId = buddy.id,
+                                    toBuddyId = buddyId
+                                )
+                            }
+                            creditList?.add(credit)
+                        } else {
+                            if (buddy.id in currentCredits) {
+                                credit = currentCredits[buddy.id]
+                                credit!!.amount = -1.0f
+                                creditList?.add(credit)
+                            }
+                        }
+                    }
+                }
+                // Update group credit cache
+                chipInViewModel.updateCredits(expense!!, creditList, groupCredit)
             }
             finish()
+        }
+
+        if (expenseId != -1L) {
+            toggleButton(deleteButton, true)
+            deleteButton!!.setOnClickListener {
+                val builder = AlertDialog.Builder(this@LogExpenses)
+                builder.setTitle("Deleting expense")
+                builder.setMessage("This action cannot be undone. Continue?")
+                builder.setPositiveButton(android.R.string.yes) { _, _ ->
+                    chipInViewModel.deleteExpense(expenseId)
+                    Toast.makeText(this, "Expense deleted.", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                builder.setNegativeButton(android.R.string.no) { _, _ -> }
+                builder.show()
+            }
         }
     }
 
@@ -382,7 +532,6 @@ class LogExpenses : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if (!evenSplit && !switchWatcher) { // Careful not to lose this condition
-                    Log.d("CCHIP", s.toString())
                     unevenSplitList[insertPoint.indexOfChild(view)] = if (s.toString().isEmpty()) {
                         0.0f
                     } else {
@@ -446,6 +595,7 @@ class LogExpenses : AppCompatActivity() {
     private fun switchSplitType(checkId: Int) {
         val radio: RadioButton = findViewById(checkId)
         evenSplit = radio.text == "Even split"
+        findViewById<CheckBox>(R.id.group_split).isEnabled = !evenSplit
         Log.d("Chip", evenSplit.toString())
         totalCostField!!.isEnabled = evenSplit
         individualCostFields.forEach { field ->
@@ -525,6 +675,49 @@ class LogExpenses : AppCompatActivity() {
             button!!.isEnabled = false
             button.setBackgroundColor(Color.parseColor("#DCDCDC"))
             button.setTextColor(Color.parseColor("#808080"))
+        }
+    }
+
+    private fun openCamera() {
+//        val values = ContentValues()
+//        values.put(MediaStore.Images.Media.TITLE, "New Picture")
+//        values.put(MediaStore.Images.Media.DESCRIPTION, "From the Camera")
+//        image_uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+//        //camera intent
+        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val expenseId = expense?.id ?: -1
+        val fileName = "${getExternalFilesDir(null)}/uploads/receipts/$expenseId.jpg"
+        Log.d("CHIP", "Saving image to: $fileName")
+        image_uri = FileProvider.getUriForFile(this, applicationContext.packageName + ".provider", File(fileName))
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri)
+        cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        startActivityForResult(cameraIntent, 1001)
+    }
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        //called when user presses ALLOW or DENY from Permission Request Popup
+        when(requestCode){
+            1000 -> {
+                if (grantResults.size > 0 && grantResults[0] ==
+                    PackageManager.PERMISSION_GRANTED){
+                    //permission from popup was granted
+                    openCamera()
+                }
+                else{
+                    //permission from popup was denied
+                    Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        //called when image was captured from camera intent
+        if (resultCode == RESULT_OK){
+            //set image captured to image view
+//            image_view.setImageURI(image_uri)
         }
     }
 }

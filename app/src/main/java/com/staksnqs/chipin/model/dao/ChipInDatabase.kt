@@ -4,14 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.staksnqs.chipin.model.entity.Activity
-import com.staksnqs.chipin.model.entity.Buddy
-import com.staksnqs.chipin.model.entity.Credit
-import com.staksnqs.chipin.model.entity.Expense
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.staksnqs.chipin.model.entity.*
 
 @Database(
-    entities = [Activity::class, Buddy::class, Credit::class, Expense::class],
-    version = 1
+    entities = [Activity::class, Buddy::class, Credit::class, Expense::class, GroupCredit::class],
+    version = 2
 )
 abstract class ChipInDatabase : RoomDatabase() {
     abstract fun ChipInDao(): ChipInDao
@@ -28,7 +27,8 @@ abstract class ChipInDatabase : RoomDatabase() {
         private fun buildDatabase(context: Context) = Room.databaseBuilder(
             context,
             ChipInDatabase::class.java, "chipin.db"
-        )
-            .build()
+        ).build()
     }
+
+
 }

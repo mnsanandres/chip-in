@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "credits")
-data class Credit(
+@Entity(tableName = "group_credits")
+data class GroupCredit(
     @PrimaryKey(autoGenerate = true) val id: Long,
     var expenseId: Long,
     var amount: Float,

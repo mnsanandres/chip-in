@@ -2,6 +2,8 @@ package com.staksnqs.chipin
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -133,6 +135,10 @@ class LogActivity : AppCompatActivity() {
 
         val backButton = findViewById<ImageView>(R.id.cancel_new)
         backButton.setBackgroundResource(android.R.drawable.ic_menu_revert)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            backButton.foreground = ContextCompat.getDrawable(this@LogActivity, android.R.drawable.ic_menu_revert)
+            backButton.foregroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.yellow))
+        }
         backButton.setOnClickListener {
             finish()
         }

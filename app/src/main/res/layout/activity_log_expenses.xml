@@ -15,148 +15,180 @@
         <include
                 android:id="@+id/tool_bar"
                 layout="@layout/new_tool_bar"/>
-        <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:id="@+id/expense_info"
-                        android:layout_below="@id/tool_bar">
-            <ImageView android:layout_width="100dp" android:layout_height="100dp"
-                       android:id="@+id/buddy"
-                       android:layout_marginStart="10dp"
-                       android:background="@drawable/buddy_frame"/>
-            <!--<include-->
+        <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:fadeScrollbars="false"
+                    android:layout_below="@id/tool_bar"
+                    android:scrollbarThumbHorizontal="@color/yellow" android:scrollbarThumbVertical="@color/yellow">
+            <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:id="@+id/expense_info">
+                    <ImageView android:layout_width="100dp" android:layout_height="100dp"
+                               android:id="@+id/buddy"
+                               android:layout_marginStart="10dp"
+                               android:background="@drawable/buddy_frame"/>
+                    <!--<include-->
                     <!--android:layout_width="100dp" android:layout_height="100dp"-->
                     <!--android:id="@+id/group_expense"-->
                     <!--android:layout_marginStart="10dp"-->
                     <!--layout="@layout/group_avatar"/>-->
-            <RelativeLayout android:id="@+id/field_container" android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" android:layout_marginTop="10dp"
-                            android:layout_toEndOf="@id/buddy"
-                            android:gravity="center">
-                <RelativeLayout android:id="@+id/name_field"
-                                android:layout_width="wrap_content"
+                    <RelativeLayout android:id="@+id/field_container" android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" android:layout_marginTop="10dp"
+                                    android:layout_toEndOf="@id/buddy"
+                                    android:gravity="center">
+                        <RelativeLayout android:id="@+id/name_field"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:gravity="center">
+                            <TextView android:layout_width="60dp"
+                                      android:layout_height="50dp"
+                                      android:id="@+id/name_label"
+                                      android:text="@string/expense_name"
+                                      android:textSize="18sp"
+                                      android:gravity="center"
+                                      android:textColor="@color/black"
+                                      android:fontFamily="@font/bungee"/>
+                            <EditText android:layout_width="match_parent"
+                                      android:layout_height="50dp"
+                                      android:id="@+id/name_value"
+                                      android:inputType="textCapSentences"
+                                      android:singleLine="true"
+                                      android:textSize="18sp"
+                                      android:layout_marginStart="5dp"
+                                      android:layout_toEndOf="@id/name_label"
+                                      android:fontFamily="@font/bungee" android:hint="@string/enter_expense"
+                                      android:backgroundTint="#FFC400"/>
+                        </RelativeLayout>
+                        <RelativeLayout android:id="@+id/who"
+                                        android:layout_below="@id/name_field"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:gravity="center">
+                            <TextView android:layout_width="100dp"
+                                      android:layout_height="50dp"
+                                      android:id="@+id/who_label"
+                                      android:text="Paid by "
+                                      android:textSize="18sp"
+                                      android:gravity="center"
+                                      android:textColor="@color/black"
+                                      android:fontFamily="@font/bungee"/>
+                            <TextView android:layout_width="match_parent"
+                                      android:layout_height="50dp"
+                                      android:id="@+id/who_value"
+                                      android:text="Buddy name"
+                                      android:textSize="18sp"
+                                      android:layout_toEndOf="@id/who_label"
+                                      android:gravity="center_vertical"
+                                      android:fontFamily="@font/bungee"
+                                      android:backgroundTint="#FFC400"/>
+                        </RelativeLayout>
+                    </RelativeLayout>
+                </RelativeLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:id="@+id/toggler"
+                              android:layout_marginTop="10dp"
+                              android:layout_marginStart="10dp"
+                              android:layout_below="@id/expense_info">
+                    <!--<Switch android:layout_width="wrap_content" android:layout_height="wrap_content"-->
+                    <!--android:checked="true"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:fontFamily="sans-serif-black"-->
+                    <!--android:text="Include me"/>-->
+                    <RadioGroup android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:id="@+id/split_type"
+                                android:orientation="horizontal"
+                                android:checkedButton="@id/even"
+                                android:gravity="center">
+                        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                     android:buttonTint="@color/yellow"
+                                     android:id="@+id/even"
+                                     android:text="Even split" android:layout_marginHorizontal="10dp"
+                                     android:fontFamily="sans-serif-black"/>
+                        <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                     android:buttonTint="@color/yellow"
+                                     android:id="@+id/uneven"
+                                     android:text="Specify amount" android:layout_marginHorizontal="10dp"
+                                     android:fontFamily="sans-serif-black"/>
+                        <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                  android:id="@+id/group_split"
+                                  android:buttonTint="@color/yellow"
+                                  android:text="Split later"
+                                  android:enabled="false"
+                                  android:fontFamily="sans-serif-black"/>
+                    </RadioGroup>
+                </LinearLayout>
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:id="@+id/hint"
+                                android:layout_below="@id/toggler">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                              android:text="If all buddies pay the same, select Even Split otherwise Specify Amount. If other buddies will owe the higher paying buddies, check Split later."
+                              android:layout_marginTop="10dp" android:layout_marginStart="10dp"
+                              android:layout_marginEnd="10dp"
+                              android:textSize="12sp"/>
+                </RelativeLayout>
+                <RelativeLayout android:id="@+id/cost_field"
+                                android:layout_below="@id/hint"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:gravity="center">
-                    <TextView android:layout_width="60dp"
+                    <TextView android:layout_width="wrap_content"
                               android:layout_height="50dp"
-                              android:id="@+id/name_label"
-                              android:text="@string/expense_name"
+                              android:id="@+id/cost_label"
+                              android:text="@string/cost"
                               android:textSize="18sp"
                               android:gravity="center"
                               android:textColor="@color/black"
                               android:fontFamily="@font/bungee"/>
-                    <EditText android:layout_width="match_parent"
+                    <EditText android:layout_width="150dp"
                               android:layout_height="50dp"
-                              android:id="@+id/name_value"
-                              android:inputType="text"
+                              android:id="@+id/cost_value"
+                              android:inputType="number"
+                              android:digits="0123456789."
                               android:singleLine="true"
                               android:textSize="18sp"
                               android:layout_marginStart="5dp"
-                              android:layout_toEndOf="@id/name_label"
-                              android:fontFamily="@font/bungee" android:hint="@string/enter_expense"
+                              android:enabled="true"
+                              android:layout_toEndOf="@id/cost_label"
+                              android:fontFamily="@font/bungee" android:hint="@string/enter_cost"
                               android:backgroundTint="#FFC400"/>
+                    <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                 android:id="@+id/upload_receipt"
+                                 android:layout_toEndOf="@id/cost_value"
+                                 android:layout_centerInParent="true"
+                                 android:backgroundTint="@color/yellow"
+                                 android:foregroundTint="@color/yellow"
+                                 android:background="@android:drawable/ic_menu_camera"
+                                 android:foreground="@android:drawable/ic_menu_camera" tools:ignore="UnusedAttribute"/>
                 </RelativeLayout>
-                <RelativeLayout android:id="@+id/who"
-                                android:layout_below="@id/name_field"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center">
-                    <TextView android:layout_width="100dp"
-                              android:layout_height="50dp"
-                              android:id="@+id/who_label"
-                              android:text="Paid by "
-                              android:textSize="18sp"
-                              android:gravity="center"
-                              android:textColor="@color/black"
-                              android:fontFamily="@font/bungee"/>
-                    <TextView android:layout_width="match_parent"
-                              android:layout_height="50dp"
-                              android:id="@+id/who_value"
-                              android:text="Buddy name"
-                              android:textSize="18sp"
-                              android:layout_toEndOf="@id/who_label"
-                              android:gravity="center_vertical"
-                              android:fontFamily="@font/bungee"
-                              android:backgroundTint="#FFC400"/>
-                </RelativeLayout>
+                <LinearLayout android:layout_width="match_parent"
+                              android:layout_below="@id/cost_field"
+                              android:id="@+id/scrollContainer"
+                              android:layout_height="wrap_content"
+                >
+                    <ScrollView
+                            android:layout_width="match_parent"
+                            android:id="@+id/scrollView"
+                            android:layout_marginBottom="100dp"
+                            android:layout_height="match_parent" android:fadeScrollbars="false"
+                            android:scrollbarThumbHorizontal="@color/yellow"
+                            android:scrollbarThumbVertical="@color/yellow">
+                        <org.apmem.tools.layouts.FlowLayout android:layout_width="match_parent"
+                                                            android:layout_height="wrap_content"
+                                                            android:id="@+id/buddy_list"
+                                                            android:layout_marginTop="10dp"
+                                                            android:layout_marginStart="10dp"
+                                                            android:layout_marginEnd="10dp"
+                                                            android:layout_marginBottom="10dp">
+                            <!--<ImageButton android:layout_width="100dp" android:layout_height="100dp"-->
+                            <!--android:id="@+id/add_buddy"-->
+                            <!--android:layout_margin="10dp"-->
+                            <!--android:background="@drawable/buddy_frame"/>-->
+                        </org.apmem.tools.layouts.FlowLayout>
+                    </ScrollView>
+                </LinearLayout>
+
             </RelativeLayout>
-        </RelativeLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                      android:id="@+id/toggler"
-                      android:layout_marginTop="10dp"
-                      android:layout_marginStart="10dp"
-                      android:layout_below="@id/expense_info">
-            <!--<Switch android:layout_width="wrap_content" android:layout_height="wrap_content"-->
-            <!--android:checked="true"-->
-            <!--android:layout_gravity="center"-->
-            <!--android:fontFamily="sans-serif-black"-->
-            <!--android:text="Include me"/>-->
-            <RadioGroup android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:id="@+id/split_type"
-                        android:orientation="horizontal"
-                        android:checkedButton="@id/even"
-                        android:gravity="center">
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                             android:buttonTint="@color/yellow"
-                             android:id="@+id/even"
-                             android:text="Even split" android:layout_marginHorizontal="10dp"
-                             android:fontFamily="sans-serif-black"/>
-                <RadioButton android:layout_width="wrap_content" android:layout_height="wrap_content"
-                             android:buttonTint="@color/yellow"
-                             android:id="@+id/uneven"
-                             android:text="Specify amount" android:layout_marginHorizontal="10dp"
-                             android:fontFamily="sans-serif-black"/>
-            </RadioGroup>
-        </LinearLayout>
-        <RelativeLayout android:id="@+id/cost_field"
-                        android:layout_below="@id/toggler"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center">
-            <TextView android:layout_width="wrap_content"
-                      android:layout_height="50dp"
-                      android:id="@+id/cost_label"
-                      android:text="@string/cost"
-                      android:textSize="18sp"
-                      android:gravity="center"
-                      android:textColor="@color/black"
-                      android:fontFamily="@font/bungee"/>
-            <EditText android:layout_width="150dp"
-                      android:layout_height="50dp"
-                      android:id="@+id/cost_value"
-                      android:inputType="number"
-                      android:digits="0123456789."
-                      android:singleLine="true"
-                      android:textSize="18sp"
-                      android:layout_marginStart="5dp"
-                      android:enabled="true"
-                      android:layout_toEndOf="@id/cost_label"
-                      android:fontFamily="@font/bungee" android:hint="@string/enter_cost"
-                      android:backgroundTint="#FFC400"/>
-        </RelativeLayout>
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_below="@id/cost_field"
-                      android:id="@+id/scrollContainer"
-                      android:layout_height="wrap_content"
-        >
-            <ScrollView
-                    android:layout_width="match_parent"
-                    android:id="@+id/scrollView"
-                    android:layout_marginBottom="100dp"
-                    android:layout_height="match_parent" android:fadeScrollbars="false"
-                    android:scrollbarThumbHorizontal="@color/yellow" android:scrollbarThumbVertical="@color/yellow">
-                <org.apmem.tools.layouts.FlowLayout android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:id="@+id/buddy_list"
-                                                    android:layout_marginTop="10dp"
-                                                    android:layout_marginStart="10dp"
-                                                    android:layout_marginEnd="10dp"
-                                                    android:layout_marginBottom="10dp">
-                    <!--<ImageButton android:layout_width="100dp" android:layout_height="100dp"-->
-                    <!--android:id="@+id/add_buddy"-->
-                    <!--android:layout_margin="10dp"-->
-                    <!--android:background="@drawable/buddy_frame"/>-->
-                </org.apmem.tools.layouts.FlowLayout>
-            </ScrollView>
-        </LinearLayout>
+        </ScrollView>
         <RelativeLayout android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/buttonContainer"

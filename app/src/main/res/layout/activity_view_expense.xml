@@ -95,6 +95,14 @@
                       android:layout_toEndOf="@id/cost_label"
                       android:fontFamily="@font/bungee" android:hint="@string/enter_cost"
                       android:backgroundTint="#FFC400"/>
+            <ImageButton android:layout_width="wrap_content" android:layout_height="wrap_content"
+                         android:id="@+id/view_receipt"
+                         android:layout_toEndOf="@id/cost_value"
+                         android:layout_centerInParent="true"
+                         android:backgroundTint="@color/yellow"
+                         android:foregroundTint="@color/yellow"
+                         android:background="@android:drawable/ic_menu_gallery"
+                         android:foreground="@android:drawable/ic_menu_gallery" tools:ignore="UnusedAttribute"/>
         </RelativeLayout>
         <LinearLayout android:layout_width="match_parent"
                       android:layout_below="@id/cost_field"

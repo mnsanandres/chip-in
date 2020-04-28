@@ -2,6 +2,8 @@ package com.staksnqs.chipin
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -38,6 +40,10 @@ class DuesPreview : AppCompatActivity() {
 
         val backButton = findViewById<ImageView>(R.id.cancel_new)
         backButton.setBackgroundResource(android.R.drawable.ic_menu_revert)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            backButton.foreground = ContextCompat.getDrawable(this@DuesPreview, android.R.drawable.ic_menu_revert)
+            backButton.foregroundTintList = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.yellow))
+        }
         backButton.setOnClickListener {
             finish()
         }
@@ -60,8 +66,11 @@ class DuesPreview : AppCompatActivity() {
             this, Observer { duesPreview ->
                 insertPoint.removeAllViews()
                 var totalDue = 0.0f
+                Log.d("CHIP", duesPreview.toString())
                 duesPreview.forEach{ dueInfo ->
-                    totalDue += dueInfo.total
+                    Log.d("CHIP", "For ${dueInfo.name}: total: ${dueInfo.total}, owed: ${dueInfo.owed}")
+                    val actual = dueInfo.total - dueInfo.owed
+                    totalDue += if (actual < 0) 0.0f else actual
                     val view = inflater.inflate(R.layout.buddy_frame_2, null)
                     view.id = View.generateViewId()
                     val imageHolder = view.findViewById<ImageView>(R.id.buddy_avatar)
@@ -75,7 +84,7 @@ class DuesPreview : AppCompatActivity() {
                     val nameField = view.findViewById<TextView>(R.id.buddy_name)
                     nameField.text = dueInfo.name
                     val costField = view.findViewById<EditText>(R.id.individual_cost)
-                    costField.setText("%.2f".format(dueInfo.total))
+                    costField.setText("%.2f".format(if (actual < 0) 0.0f else actual))
                     insertPoint.addView(view)
 
                     view.setOnClickListener{
@@ -88,7 +97,7 @@ class DuesPreview : AppCompatActivity() {
                         startActivity(intent)
                     }
                 }
-                Log.d("CHIP", duesPreview.toString())
+//                Log.d("CHIP", duesPreview.toString())
                 findViewById<TextView>(R.id.cost_value).text = "%.2f".format(totalDue)
             }
         )
